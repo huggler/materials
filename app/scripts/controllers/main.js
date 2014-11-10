@@ -64,6 +64,8 @@ angular.module('materialApp')
 
         //window.alert(id);
 
+        $('#form-new-artist').get(0).reset();
+        $('#create').trigger('click');
         $scope.getArtWork(url);
 
         $scope.addMaterials(url, headers);
@@ -93,9 +95,38 @@ angular.module('materialApp')
   	/* return obj work */
   	$scope.getArtWork = function(url){
   		$http.get(url).success(function(response){
-  			$scope.artworks.push(response);
+        $scope.getMaterialsEach(response.materials, function(materialsArray){
+          console.log('materialsArray', materialsArray);
+          response.materials = materialsArray;
+  			 $scope.artworks.push(response);
+        });
   		});
   	};
+
+    $scope.getMaterialsEach = function(resp, callback){
+      $http.get(resp).success(function(response){
+        console.log('response', response);
+        var arrayMaterials = [];
+        var data = response.urls;
+        var datalen = data.length;
+        var url;
+
+        for (var i = 0; i < datalen; i++) {
+          url = data[i];
+          $scope.getMaterial(url, function(resp){
+            console.log(resp);
+            arrayMaterials.push(resp);
+          });
+        }       
+        callback(arrayMaterials);
+      });
+    };
+
+    $scope.getMaterial = function(url, callback){
+      $http.get(url).success(function(resp){
+        callback(resp);
+      });
+    };
 
   	/* return list de mediums */
   	$scope.getMediums = function(){
