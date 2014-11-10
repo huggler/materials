@@ -1,0 +1,185 @@
+<div class="container">
+  <div class="jumbotron">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <input class="form-control" name="search" placeholder="Search your artists" ng-model="search"/>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6 text-right">
+          <div class="form-group">
+            <button class="btn btn-primary" data-toggle="collapse" data-target=".new-artist"><i class="glyphicon glyphicon-ok"></i> Create at Work</button>
+          </div>
+        </div>
+      </div>  
+    </div>
+  </div>
+
+  <!-- new work -->
+  <div class="new-artist well collapse">
+    <form id="form-new-artist">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Artist & Title & Date</label>
+            <input class="form-control" placeholder="Artist" name="artist" ng-model="artist" />
+          </div>
+          <div class="form-group">
+            <input class="form-control" placeholder="Title" name="title" ng-model="title" />
+          </div>
+          <div class="form-group">
+            <input class="form-control" placeholder="Year" name="year" ng-model="year" />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Medium & Material</label>
+            <select class="form-control" ng-model="medium" name="medium" ng-options="medium.id as medium.name for medium in mediums">
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <input type="text" class="form-control" type="text" name="txtMaterial" id="txtMaterial" placeholder="Materials" ng-model="txtMaterial" ng-keydown="($event.keyCode == 13 ? addMaterial($event) : false);" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="addMaterial()">Add</button>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <ul class="nav nav-pills">
+              <li ng-repeat="material in arrMaterials track by $index" id="material-{{$index}}">
+                <button type="button" class="btn btn-danger btn-xs" ng-click="deleteMaterial({{$index}})">
+                  {{material}} <i class="glyphicon glyphicon-remove"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div ng-show="medium == 2">
+            <label>Dimensions & Color</label>
+            <div class="form-group">
+              <input class="form-control" placeholder="H" name="dimension1" ng-model="dimension1"/>
+            </div>
+            <div class="form-group">
+              <input class="form-control" placeholder="W" name="dimension2" ng-model="dimension2"/>
+            </div>
+            <div class="form-group">
+              <input class="form-control" placeholder="D" name="dimension3" ng-model="dimension3"/>
+            </div>
+            <div class="form-group">
+              <select class="form-control" ng-model="dimensions_in_cm">
+                <option value="true">cm</option>
+                <option value="false">inches</option>
+              </select>
+            </div>
+          </div>
+          <div ng-show="medium == 1">
+            <div class="form-group">
+              <label>Dimensions & Color</label> 
+              <input class="form-control" placeholder="H,W"/>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Price</label>
+            <input class="form-control" name="price"  ng-model="price"/>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-addon">Vat</div>
+              <input class="form-control" type="text" name="vat" placeholder="Vat" ng-model="vat"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <textarea class="form-control" placeholder="Description" ng-model="description"></textarea>
+          </div>
+          <div class="form-group">
+            <button ng-click="addArtWorks()" class="btn btn-block btn-primary">Add Work</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- list of works --> 
+  <div class="artist-list">
+    <div ng-repeat="artwork in artworks | filter : search | orderBy:'-id'" id="artwork-{{artwork.id}}" ng-animate="'animate'" class="artwork">
+      Id: {{artwork.id}}
+      <hr>
+      <div class="row">
+
+        <div class="col-md-2 pull-right">
+          <div class="form-group">
+            <button class="btn btn-danger btn-block" ng-click="deleteArtist({{artwork.id}})"><i class="glyphicon glyphicon-remove"></i> Remove</button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            {{artwork.artist}}
+          </div>
+          <div class="form-group">
+            {{artwork.title}}
+          </div>
+          <div class="form-group">
+            {{artwork.year}}
+          </div>
+        </div>
+        <div class="col-md-3">
+
+          <div class="form-group">
+            <select class="form-control">
+              <option value="{{medium.id}}" ng-repeat="medium in mediums" ng-selected="artwork.medium == medium.url">{{medium.name}}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input class="form-control" placeholder="Materias" value="{{artwork.materials}}" />
+          </div>
+        </div>
+        <div class="col-md-2">
+
+          <div class="form-group"> 
+            <input class="form-control" placeholder="H" name="dimension1" value="{{artwork.dimension1}}"/>
+          </div>
+          <div class="form-group">
+            <input class="form-control" placeholder="W" name="dimension2" value="{{artwork.dimension2}}"/>
+          </div>
+          <div class="form-group">
+            <input class="form-control" placeholder="D" name="dimension3" value="{{artwork.dimension3}}"/>
+          </div>
+          <div class="form-group">
+            <select class="form-control">
+              <option value="true" ng-selected="artwork.dimensions_in_cm">cm</option>
+              <option value="false" ng-selected="!artwork.dimensions_in_cm">inches</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <input class="form-control" value="{{artwork.price}}"/>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-addon">Vat</div>
+              <input class="form-control" type="text" placeholder="Vat" value="{{artwork.vat}}"/>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <textarea class="form-control" placeholder="Description">{{artwork.description}}</textarea>
+        </div>
+
+      </div>
+      <hr/>
+    </div>
+  </div>
+
+</div>
