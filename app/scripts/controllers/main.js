@@ -18,19 +18,21 @@ angular.module('materialApp')
     $scope.arrMaterials = [];  
 
     $scope.id = null;
-  	$scope.artist = 'Felipe';
-  	$scope.title = 'Title';
-  	$scope.year = '2014';
-  	$scope.description = 'Description';
-  	$scope.price = '15000';
+  	$scope.artist = '';
+  	$scope.title = '';
+  	$scope.year = '';
+  	$scope.description = '';
+  	$scope.price = 0;
   	$scope.includes_vat = false;
   	$scope.vat = 0;
   	$scope.materials = '';
-  	$scope.medium = 0;
-  	$scope.dimension1 = 1;
-  	$scope.dimension2 = 2;
-  	$scope.dimension3 = 3;
+  	$scope.medium = null;
+  	$scope.dimension1 = 0;
+  	$scope.dimension2 = 0;
+  	$scope.dimension3 = 0;
   	$scope.dimensions_in_cm = true;
+
+    $scope.onlyNumbers = /^\d+$/;
 
 	/* add new work  */
   	$scope.addArtWorks = function(){
@@ -55,22 +57,17 @@ angular.module('materialApp')
     					'dimensions_in_cm' : $scope.dimensions_in_cm
     				}
   		})
-      .success(function(data, status, headers, config){
+      .success(function(data, status, headers){
 
         var url = headers('Location');
-        //var parseUrl = url.join("/");
-        //console.log(parseUrl);
-        //var id = url.replace(/\D/g, '');
 
-        //window.alert(id);
-
-        $('#form-new-artist').get(0).reset();
+        $('#formnewartist').get(0).reset();
         $('#create').trigger('click');
         $scope.getArtWork(url);
 
-        $scope.addMaterials(url, headers);
+        $scope.addMaterials(url);
       })
-      .error(function(resp){
+      .error(function(){
       });
   	};
 
@@ -103,21 +100,23 @@ angular.module('materialApp')
   		});
   	};
 
+
     $scope.getMaterialsEach = function(resp, callback){
       $http.get(resp).success(function(response){
-        console.log('response', response);
+
         var arrayMaterials = [];
         var data = response.urls;
         var datalen = data.length;
         var url;
+        var addArrayMaterialsEach = function(resp){
+          arrayMaterials.push(resp);    
+        };
 
         for (var i = 0; i < datalen; i++) {
           url = data[i];
-          $scope.getMaterial(url, function(resp){
-            console.log(resp);
-            arrayMaterials.push(resp);
-          });
-        }       
+          $scope.getMaterial(url, addArrayMaterialsEach);
+        }
+
         callback(arrayMaterials);
       });
     };
@@ -162,9 +161,34 @@ angular.module('materialApp')
     /* add material in memory */
     $scope.addMaterial = function($event){
 
-        $scope.arrMaterials.push($scope.txtMaterial);
-        $scope.txtMaterial = '';
-        $('#txtMaterial').focus();
+
+        $http({
+            method: 'POST',
+            url:  $scope.url + '/materials',
+            headers: { 'Content-Type': 'application/json' },
+            dataType: 'json',
+            data: {
+                'name' : $scope.txtMaterial
+              }
+        })
+        .success(function(data, status, headers){
+          var url = headers('Location');
+
+          var obj = {
+            'url' : url,
+            'name' : $scope.txtMaterial
+          };
+
+          $scope.arrMaterials.push(obj);
+          $scope.txtMaterial = '';
+          $('#txtMaterial').focus();
+
+        })
+        .error(function(resp){
+          console.log(resp);
+        });
+
+
 
         if($event){
           $event.preventDefault();
@@ -172,30 +196,26 @@ angular.module('materialApp')
     };
 
     /* add material in memory */
-    $scope.addMaterials = function(url, headers){
+    $scope.addMaterials = function(url){
 
       var len = $scope.arrMaterials.length;
+      var urlPost = url + '/materials';
 
       for (var i = 0; i < len; i++) {
 
         $http({
             method: 'POST',
-            url: url + '/materials',
+            url: urlPost,
             headers: { 'Content-Type': 'application/json' },
             dataType: 'json',
             data: {
-                'name' : $scope.arrMaterials[i],
-                'url' : 404
+                'name' : $scope.arrMaterials[i].name,
+                'url' : $scope.arrMaterials[i].url
               }
         })
-        .success(function(data, status, headers, config){
-
-          var url = headers('Location');
-          console.log(url);
-
+        .success(function(){
         })
-        .error(function(resp){
-          console.log(resp);
+        .error(function(){
         });
       }
     };
@@ -208,23 +228,6 @@ angular.module('materialApp')
           $('#artwork-' + id).fadeOut();
         });*/
     };
-
-    /* get artWork in memory */
-    $scope.getMemoryArtWork = function(url){
-
-      var len = $scope.artworks.length;
-
-      for (var i = 0; i < len; i++) {
-        if($scope.artworks[i].url === url){
-          return $scope.artworks[i];
-          break;
-        }
-      };
-
-      return false;
-    };
-
-
 
   	$scope.getMediums();
   	$scope.getArtWorks();

@@ -20,24 +20,25 @@
 
   <!-- new work -->
   <div class="new-artist well collapse">
-    <form id="form-new-artist">
+    <form id="formnewartist" name="formnewartist">
       <div class="row">
         <div class="col-md-3">
           <div class="form-group">
             <label>Artist & Title & Date</label>
-            <input class="form-control" placeholder="Artist" name="artist" ng-model="artist" />
+            <input class="form-control" placeholder="Artist" name="artist" ng-model="artist" value="" required />
           </div>
           <div class="form-group">
-            <input class="form-control" placeholder="Title" name="title" ng-model="title" />
+            <input class="form-control" placeholder="Title" name="title" ng-model="title" value="" required />
           </div>
           <div class="form-group">
-            <input class="form-control" placeholder="Year" name="year" ng-model="year" />
+            <input class="form-control" placeholder="Year" name="year" ng-model="year" value="" ng-pattern="onlyNumbers" ng-minlength="4" ng-maxlength="4" required />
+            <label class="text-danger" ng-show="formnewartist.year.$error.pattern">Only Number - Ex: 2014</label>
           </div>
         </div>
         <div class="col-md-3">
           <div class="form-group">
             <label>Medium & Material</label>
-            <select class="form-control" ng-model="medium" name="medium" ng-options="medium.id as medium.name for medium in mediums">
+            <select class="form-control" ng-model="medium" name="medium" ng-options="medium.id as medium.name for medium in mediums" required>
             </select>
           </div>
           <div class="form-group">
@@ -52,47 +53,40 @@
             <ul class="nav nav-pills">
               <li ng-repeat="material in arrMaterials track by $index" id="material-{{$index}}">
                 <button type="button" class="btn btn-danger btn-xs" ng-click="deleteMaterial({{$index}})">
-                  {{material}} <i class="glyphicon glyphicon-remove"></i>
+                  {{material.name}} <i class="glyphicon glyphicon-remove"></i>
                 </button>
               </li>
             </ul>
           </div>
         </div>
         <div class="col-md-3">
-          <div ng-show="medium == 2">
             <label>Dimensions & Color</label>
             <div class="form-group">
-              <input class="form-control" placeholder="H" name="dimension1" ng-model="dimension1"/>
+              <input class="form-control" placeholder="H" name="dimension1" ng-model="dimension1" value="" ng-pattern="onlyNumbers" required/>
             </div>
             <div class="form-group">
-              <input class="form-control" placeholder="W" name="dimension2" ng-model="dimension2"/>
+              <input class="form-control" placeholder="W" name="dimension2" ng-model="dimension2" value="" ng-pattern="onlyNumbers" required/>
             </div>
-            <div class="form-group">
-              <input class="form-control" placeholder="D" name="dimension3" ng-model="dimension3"/>
+            <div class="form-group" ng-show="medium == 1">
+              <input class="form-control" placeholder="D" name="dimension3" ng-model="dimension3" value="" ng-pattern="onlyNumbers" required/>
             </div>
             <div class="form-group">
               <select class="form-control" ng-model="dimensions_in_cm">
+                <option></option>
                 <option value="true">cm</option>
                 <option value="false">inches</option>
               </select>
             </div>
-          </div>
-          <div ng-show="medium == 1">
-            <div class="form-group">
-              <label>Dimensions & Color</label> 
-              <input class="form-control" placeholder="H,W"/>
-            </div>
-          </div>
         </div>
         <div class="col-md-3">
           <div class="form-group">
             <label>Price</label>
-            <input class="form-control" name="price"  ng-model="price"/>
+            <input class="form-control" name="price" placeholder="Price" ng-model="price" ng-pattern="onlyNumbers" value="" required/>
           </div>
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-addon">Vat</div>
-              <input class="form-control" type="text" name="vat" placeholder="Vat" ng-model="vat"/>
+              <input class="form-control" type="text" name="vat" placeholder="Vat" ng-model="vat" ng-pattern="onlyNumbers"/>
             </div>
           </div>
         </div>
@@ -103,7 +97,7 @@
             <textarea class="form-control" placeholder="Description" ng-model="description"></textarea>
           </div>
           <div class="form-group">
-            <button ng-click="addArtWorks()" class="btn btn-block btn-primary">Add Work</button>
+            <button ng-click="addArtWorks()" class="btn btn-block btn-primary" ng-disabled="formnewartist.$invalid">Add Work</button>
           </div>
         </div>
       </div>
@@ -113,8 +107,6 @@
   <!-- list of works --> 
   <div class="artist-list">
     <div ng-repeat="artwork in artworks | filter : search | orderBy:'-id'" id="artwork-{{artwork.id}}" ng-animate="'animate'" class="artwork">
-      Id: {{artwork.id}}
-      <hr>
       <div class="row">
 
         <div class="col-md-2 pull-right">
@@ -163,6 +155,7 @@
           </div>
           <div class="form-group">
             <select class="form-control">
+              <option></option>
               <option value="true" ng-selected="artwork.dimensions_in_cm">cm</option>
               <option value="false" ng-selected="!artwork.dimensions_in_cm">inches</option>
             </select>
